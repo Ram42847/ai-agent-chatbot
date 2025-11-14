@@ -147,7 +147,7 @@ Provide a natural response incorporating this information."""
         except Exception as e:
             print(f"[Error] {str(e)}")
             return {
-                "response": f"I encountered an error processing your request. Please try again.",
+                "response": f"Hi I encountered an error processing your request. Please try again.",
                 "intent": intent,
                 "confidence": confidence,
                 "tool_used": False,
