@@ -12,8 +12,12 @@ import gradio as gr
 import ollama
 
 from config import Config
-from utils import VectorDatabase, IntentClassifier, VoiceTranscriber, ToolExecutor
-from prompts import RAG_RESPONSE_PROMPT, SYSTEM_PROMPT, TOOL_CALLING_PROMPT
+from utils.vector_db import VectorDatabase
+from utils.intent_classifier import IntentClassifier
+from utils.voice_processor import VoiceTranscriber
+from utils.tool_executor import ToolExecutor
+from prompts.rag_prompts import RAG_RESPONSE_PROMPT, SYSTEM_PROMPT
+from prompts.tool_prompts import TOOL_CALLING_PROMPT
 
 
 class AIAgent:

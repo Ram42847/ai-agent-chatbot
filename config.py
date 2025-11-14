@@ -64,19 +64,3 @@ class Config:
         os.makedirs(cls.CHROMA_PERSIST_DIR, exist_ok=True)
 
 
-# ============================================================================
-# FILE: utils/__init__.py
-# ============================================================================
-"""Utility modules for AI Agent"""
-
-from .vector_db import VectorDatabase
-from .intent_classifier import IntentClassifier
-from .voice_processor import VoiceTranscriber
-from .tool_executor import ToolExecutor
-
-__all__ = [
-    'VectorDatabase',
-    'IntentClassifier', 
-    'VoiceTranscriber',
-    'ToolExecutor'
-]

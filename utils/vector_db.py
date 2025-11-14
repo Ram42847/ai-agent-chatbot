@@ -57,10 +57,21 @@ class VectorDatabase:
         for i, transcript in enumerate(transcripts):
             text = transcript.get('text', '')
             metadata = transcript.get('metadata', {})
-            
+
+            # Ensure metadata is a dictionary
+            if not isinstance(metadata, dict):
+                metadata = {"tags": metadata}  # Wrap list or string in a dict
+
+            # Convert any list values inside metadata dict to strings
+            for key, value in metadata.items():
+                if isinstance(value, list):
+                    metadata[key] = ", ".join(value)
+                elif not isinstance(value, (str, int, float, bool)):
+                    metadata[key] = str(value)  # Convert any other type to string
+
             embedding = self.embedding_model.encode(text).tolist()
             doc_id = f"doc_{int(time.time() * 1000)}_{i}"
-            
+
             ids.append(doc_id)
             embeddings.append(embedding)
             documents.append(text)
@@ -74,6 +85,7 @@ class VectorDatabase:
         )
         print(f"Added {len(transcripts)} transcripts to database")
         return ids
+
         
     def search(self, query: str, n_results: int = None) -> List[Dict]:
         """Search for similar transcripts"""
