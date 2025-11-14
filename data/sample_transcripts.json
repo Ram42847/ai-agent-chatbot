@@ -1,0 +1,38 @@
+[
+  {
+    "text": "Customer reported billing discrepancy for January invoice. Issue identified as duplicate charge for subscription service. Refund of $49.99 processed within 24 hours. Customer satisfied with quick resolution and apologized for the inconvenience.",
+    "metadata": {
+      "date": "2024-01-15",
+      "agent": "John Smith",
+      "customer_id": "CUST-001",
+      "category": "billing",
+      "sentiment": "negative_to_positive",
+      "resolution_time": "24h",
+      "tags": ["billing", "refund", "duplicate_charge"]
+    }
+  },
+  {
+    "text": "Technical support call regarding login issues. Customer unable to access dashboard after password reset attempt. Troubleshooting steps: cleared browser cache and cookies, tried incognito mode. Issue persisted. Reset password via admin panel. Login successful. Provided additional security tips for future.",
+    "metadata": {
+      "date": "2024-01-16",
+      "agent": "Sarah Johnson",
+      "customer_id": "CUST-002",
+      "category": "technical_support",
+      "sentiment": "frustrated_to_satisfied",
+      "resolution_time": "15m",
+      "tags": ["login", "password", "browser_issue", "cache"]
+    }
+  },
+  {
+    "text": "Sales inquiry about enterprise plan features. Potential customer currently managing 150+ users on business plan. Discussed benefits: unlimited users, dedicated account manager, priority support, custom integrations, API access with higher rate limits, SSO capabilities. Sent detailed proposal with pricing. Scheduled follow-up call for next week.",
+    "metadata": {
+      "date": "2024-01-17",
+      "agent": "Mike Chen",
+      "customer_id": "LEAD-003",
+      "category": "sales",
+      "sentiment": "positive",
+      "resolution_time": "45m",
+      "tags": ["enterprise", "pricing", "sales", "upsell"]
+    }
+  }
+]
