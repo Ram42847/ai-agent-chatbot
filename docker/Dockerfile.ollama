@@ -1,0 +1,42 @@
+# Dockerfile with Ollama included (for complete local setup)
+
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    OLLAMA_HOST=0.0.0.0:11434
+
+# Install system dependencies including Ollama requirements
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    git \
+    build-essential \
+    libsndfile1 \
+    ffmpeg \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Ollama
+RUN curl -fsSL https://ollama.ai/install.sh | sh
+
+WORKDIR /app
+
+# Copy and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application
+COPY . .
+
+# Create directories
+RUN mkdir -p /app/chroma_db /app/logs /app/data/user_uploads
+
+# Expose ports (7860 for app, 11434 for Ollama)
+EXPOSE 7860 11434
+
+# Create startup script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]

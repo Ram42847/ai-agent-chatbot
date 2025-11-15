@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  ai-agent-gemini:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-agent-gemini
+    ports:
+      - "7860:7860"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - DEFAULT_PROVIDER=gemini
+      - CHROMA_PERSIST_DIR=/app/chroma_db
+      - APP_PORT=7860
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    command: python hybrid_main.py gemini
+    deploy:
+      resources:
+        limits:
+          memory: 2G

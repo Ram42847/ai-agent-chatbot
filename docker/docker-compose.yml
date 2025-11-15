@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Option 1: App only (use external Ollama or Gemini)
+  ai-agent-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-agent-chatbot
+    ports:
+      - "7860:7860"
+    environment:
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - CHROMA_PERSIST_DIR=/app/chroma_db
+      - APP_PORT=7860
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - ai-agent-network
+    depends_on:
+      - ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7860/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Ollama service (separate container)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-service
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - ai-agent-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+networks:
+  ai-agent-network:
+    driver: bridge
+
+volumes:
+  ollama-data:
+    driver: local
