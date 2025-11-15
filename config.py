@@ -37,7 +37,7 @@ class Config:
     
     # Google Gemini (Optional)
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
-    GEMINI_MODEL = "gemini-pro"
+    GEMINI_MODEL = "models/gemini-2.5-flash"
     
     # Paths
     DATA_DIR = "./data"

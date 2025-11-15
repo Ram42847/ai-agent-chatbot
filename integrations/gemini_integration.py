@@ -53,7 +53,7 @@ class GeminiAgent:
     
     def _define_tools(self) -> List[Tool]:
         """Define available tools for Gemini function calling"""
-        
+
         # Tool 1: Search Transcripts
         search_transcripts = FunctionDeclaration(
             name="search_transcripts",
@@ -71,14 +71,13 @@ class GeminiAgent:
                     },
                     "limit": {
                         "type": "integer",
-                        "description": "Maximum number of results to return",
-                        "default": 3
+                        "description": "Maximum number of results to return"
                     }
                 },
                 "required": ["query"]
             }
         )
-        
+
         # Tool 2: Analyze Sentiment
         analyze_sentiment = FunctionDeclaration(
             name="analyze_sentiment",
@@ -98,7 +97,7 @@ class GeminiAgent:
                 "required": ["text"]
             }
         )
-        
+
         # Tool 3: Get Statistics
         get_statistics = FunctionDeclaration(
             name="get_statistics",
@@ -112,13 +111,12 @@ class GeminiAgent:
                 "properties": {
                     "include_categories": {
                         "type": "boolean",
-                        "description": "Whether to include category breakdown",
-                        "default": True
+                        "description": "Whether to include category breakdown"
                     }
                 }
             }
         )
-        
+
         # Tool 4: Get Recent Conversations
         get_recent_conversations = FunctionDeclaration(
             name="get_recent_conversations",
@@ -131,8 +129,7 @@ class GeminiAgent:
                 "properties": {
                     "count": {
                         "type": "integer",
-                        "description": "Number of recent conversations to retrieve",
-                        "default": 5
+                        "description": "Number of recent conversations to retrieve"
                     },
                     "category": {
                         "type": "string",
@@ -141,8 +138,7 @@ class GeminiAgent:
                 }
             }
         )
-        
-        # Create tool object
+
         tools = [Tool(
             function_declarations=[
                 search_transcripts,
@@ -151,8 +147,9 @@ class GeminiAgent:
                 get_recent_conversations
             ]
         )]
-        
+
         return tools
+
     
     def _execute_function(self, function_call) -> str:
         """
@@ -165,7 +162,13 @@ class GeminiAgent:
             String result from the function execution
         """
         function_name = function_call.name
-        function_args = dict(function_call.args)
+        try:
+            # Attempt to convert args to a dictionary
+            function_args = dict(function_call.args)
+        except TypeError:
+            # This will happen if function_call.args is None
+            function_args = {}  # Provide a default empty dictionary
+
         
         print(f"[Tool] Executing: {function_name}")
         print(f"[Tool] Arguments: {function_args}")
@@ -346,7 +349,7 @@ Respond with ONLY a JSON object (no markdown, no explanation):
 }}"""
 
         try:
-            response = genai.GenerativeModel('gemini-pro').generate_content(
+            response = genai.GenerativeModel(Config.GEMINI_MODEL).generate_content(
                 prompt,
                 generation_config={'temperature': 0.1}
             )
@@ -436,21 +439,34 @@ Provide a helpful response:"""
                 # Track call
                 function_calls_made.append({
                     'name': function_call.name,
-                    'args': dict(function_call.args),
+                    'args': dict(function_call.args or {}),  # Use empty dict if args is None,
                     'response': function_response
                 })
                 
                 # Send function response back to model
-                response = self.chat_session.send_message(
-                    genai.protos.Content(
-                        parts=[genai.protos.Part(
-                            function_response=genai.protos.FunctionResponse(
-                                name=function_call.name,
-                                response={'result': function_response}
-                            )
-                        )]
+                try:
+                    response = self.chat_session.send_message(
+                        genai.protos.Content(
+                            parts=[genai.protos.Part(
+                                function_response=genai.protos.FunctionResponse(
+                                    name=function_call.name,
+                                    response={'result': function_response}
+                                )
+                            )]
+                        )
                     )
-                )
+                except AttributeError as e:
+                    # Handle specific error where a required attribute might be missing
+                    print(f"AttributeError occurred: {str(e)}")
+                    break
+                except TypeError as e:
+                    # Handle type-related issues (e.g., invalid data structure)
+                    print(f"TypeError occurred: {str(e)}")
+                    break
+                except Exception as e:
+                    # Catch any other unexpected errors
+                    print(f"An unexpected error occurred: {str(e)}")
+                    break
             else:
                 # No more function calls, we have final response
                 break

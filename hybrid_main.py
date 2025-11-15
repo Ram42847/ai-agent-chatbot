@@ -111,7 +111,7 @@ class HybridAIAgent:
                 context=context_docs,
                 intent=intent
             )
-            
+            print("GEMINIT RESULT , ", gemini_result)
             response_text = gemini_result['response']
             tool_calls = gemini_result.get('function_calls', [])
             
