@@ -323,7 +323,9 @@ def create_gradio_interface(agent: HybridAIAgent):
     """Create enhanced Gradio interface with provider selection"""
     
     def chat_response(message, history):
-        """Handle chat messages"""
+        """Handle chat messages and update conversation history"""
+    
+        # Process the message with the agent
         result = agent.process_query(message)
         response = result['response']
         
@@ -336,7 +338,15 @@ def create_gradio_interface(agent: HybridAIAgent):
         if result['tool_used']:
             metadata += f"\n*🔧 Tools used to retrieve information*"
         
-        return response + metadata
+        # Final response including metadata
+        final_response = response + metadata
+
+        # Append the user message and AI response to history
+        history.append((message, final_response))
+        
+        # Return updated history (as a list of tuples)
+        return history
+
     
     def voice_response(audio):
         """Handle voice input"""
@@ -426,18 +436,18 @@ def create_gradio_interface(agent: HybridAIAgent):
             - Agent automatically searches past conversations
             - Tools are used when needed (search, sentiment, stats)
             """)
-            
+
             chatbot = gr.Chatbot(height=500, show_label=False)
             msg = gr.Textbox(
                 label="Your Message", 
                 placeholder="Ask anything...",
                 lines=2
             )
-            
+
             with gr.Row():
                 submit = gr.Button("Send 📤", variant="primary")
                 clear = gr.Button("Clear 🗑️")
-            
+
             gr.Examples(
                 examples=[
                     "What billing issues have we had recently?",
@@ -447,7 +457,8 @@ def create_gradio_interface(agent: HybridAIAgent):
                 ],
                 inputs=msg
             )
-            
+
+            # Update history when message is submitted or button is clicked
             msg.submit(chat_response, [msg, chatbot], [chatbot])
             submit.click(chat_response, [msg, chatbot], [chatbot])
             clear.click(lambda: None, None, chatbot, queue=False)
