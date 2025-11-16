@@ -1,0 +1,16 @@
+[
+  {
+    "text": "Customer billing issue resolved. Refund processed.",
+    "metadata": {
+      "date": "2024-01-15",
+      "category": "billing"
+    }
+  },
+  {
+    "text": "Technical support for login problems. Password reset successful.",
+    "metadata": {
+      "date": "2024-01-16",
+      "category": "technical"
+    }
+  }
+]

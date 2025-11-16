@@ -425,60 +425,74 @@ Provide a helpful response:"""
         # Track function calls
         function_calls_made = []
         
-        # Handle function calling loop
-        while response.candidates[0].content.parts:
-            part = response.candidates[0].content.parts[0]
-            
-            # Check if function was called
-            if hasattr(part, 'function_call'):
+        while True:
+            parts = response.candidates[0].content.parts
+
+            if not parts:
+                break
+
+            part = parts[0]
+
+            # CASE 1 → Model is calling a function
+            if hasattr(part, "function_call") and part.function_call is not None:
                 function_call = part.function_call
-                
-                # Execute function
+
+                # Execute the function
                 function_response = self._execute_function(function_call)
-                
-                # Track call
+
+                # Track function call
                 function_calls_made.append({
-                    'name': function_call.name,
-                    'args': dict(function_call.args or {}),  # Use empty dict if args is None,
-                    'response': function_response
+                    "name": function_call.name,
+                    "args": dict(function_call.args or {}),
+                    "response": function_response
                 })
-                
-                # Send function response back to model
+
+                # Send function response back to Gemini
                 try:
                     response = self.chat_session.send_message(
                         genai.protos.Content(
-                            parts=[genai.protos.Part(
-                                function_response=genai.protos.FunctionResponse(
-                                    name=function_call.name,
-                                    response={'result': function_response}
+                            parts=[
+                                genai.protos.Part(
+                                    function_response=genai.protos.FunctionResponse(
+                                        name=function_call.name,
+                                        response={"result": function_response}
+                                    )
                                 )
-                            )]
+                            ]
                         )
                     )
-                except AttributeError as e:
-                    # Handle specific error where a required attribute might be missing
-                    print(f"AttributeError occurred: {str(e)}")
-                    break
-                except TypeError as e:
-                    # Handle type-related issues (e.g., invalid data structure)
-                    print(f"TypeError occurred: {str(e)}")
-                    break
                 except Exception as e:
-                    # Catch any other unexpected errors
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"[Gemini] Error sending function result: {e}")
                     break
-            else:
-                # No more function calls, we have final response
-                break
-        
-        # Extract final text response
-        final_response = response.text if hasattr(response, 'text') else str(response)
-        
+
+                # Continue loop → Gemini may call more functions
+                continue
+
+            # CASE 2 → No function call => final response is ready
+            break
+
+
+        # Extract final text safely
+        try:
+            final_parts = response.candidates[0].content.parts
+            text_output = ""
+
+            for p in final_parts:
+                if hasattr(p, "text") and p.text:
+                    text_output += p.text
+
+            final_response = text_output.strip() if text_output else str(response)
+
+        except Exception:
+            final_response = str(response)
+
+
         return {
-            'response': final_response,
-            'function_calls': function_calls_made,
-            'raw_response': response
+            "response": final_response,
+            "function_calls": function_calls_made,
+            "raw_response": response
         }
+
     
     def simple_query(self, query: str) -> str:
         """

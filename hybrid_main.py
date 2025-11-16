@@ -591,9 +591,10 @@ def main():
     print("=" * 70 + "\n")
     
     interface.launch(
-        share=False, 
-        server_port=Config.APP_PORT,
-        show_error=True
+    share=False, 
+    server_port=Config.APP_PORT,
+    server_name="0.0.0.0",  # <-- Add this for Docker
+    show_error=True
     )
 
 
