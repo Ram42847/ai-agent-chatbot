@@ -3,13 +3,14 @@ version: '3.8'
 services:
   ai-agent-gemini:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: ai-agent-gemini
     ports:
       - "7860:7860"
+    env_file:
+      - ../.env
     environment:
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - DEFAULT_PROVIDER=gemini
       - CHROMA_PERSIST_DIR=/app/chroma_db
       - APP_PORT=7860
